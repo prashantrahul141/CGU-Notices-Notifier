@@ -1,4 +1,7 @@
+use dotenv::dotenv;
+use log::{error, info};
 use serde::Deserialize;
+use std::process::exit;
 
 fn default_site_url() -> String {
     "https://cgu-odisha.ac.in/notice/".to_string()
@@ -7,15 +10,24 @@ fn default_site_url() -> String {
 #[derive(Deserialize, Debug)]
 pub struct Config {
     #[serde(default = "default_site_url")]
-    site_url: String,
+    #[allow(dead_code)]
+    pub site_url: String,
 }
 
-pub fn parse_env() {
+pub fn parse_env() -> Config {
+    match dotenv() {
+        Ok(_) => info!("loaded .env file."),
+        Err(err) => {
+            error!("Failed to load .env file, {}", err.to_string());
+            exit(1);
+        }
+    }
+
     match envy::from_env::<Config>() {
-        Ok(config) => println!("{:#?}", config),
-        Err(err) => panic!(
-            "{}",
-            format!("Could not parse env vars, {}.", err.to_string())
-        ),
+        Ok(config) => return config,
+        Err(err) => {
+            error!("Failed to parse env vars, {}", err.to_string());
+            exit(1);
+        }
     }
 }
