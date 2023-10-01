@@ -1,4 +1,4 @@
-use scraper::ElementRef;
+use std::collections::HashMap;
 
 /// requests the given url and returns the html.
 ///
@@ -34,27 +34,40 @@ pub async fn get_site_html(site: &String) -> Result<String, reqwest::Error> {
     }
 }
 
-/// parses site text into html tree.
+pub fn get_table(site_text: &String) {
+    let mut tables: HashMap<String, String> = HashMap::new();
+    get_table_element(&site_text, &mut tables);
+}
+
+/// parses html text and find the required table element.
 ///
 /// # Arguments
 /// * `site_text` - Site html.
-
-pub fn get_notices_table(site_text: &String) -> Option<ElementRef> {
+fn get_table_element(site_text: &String, tables_hash_map: &mut HashMap<String, String>) {
     info!("Parsing html document.");
-    let document = scraper::Html::parse_document(site_text);
-    let table_selector = scraper::Selector::parse(".table").unwrap();
+    // let document = scraper::Html::parse_document(site_text).clone();
+    // let table_selector = scraper::Selector::parse("div").unwrap();
+
+    let site_dom = tl::parse(&site_text, tl::ParserOptions::default()).unwrap();
+    let parser = site_dom.parser();
+    let table_body_option = site_dom.query_selector("tr");
 
     info!("Searching for table in parsed document.");
-    let selected_table = document.select(&table_selector).next();
+    match table_body_option {
+        Some(table_body_node) => {
+            // looping through each tr tag in the table
+            for table_element_option in table_body_node {
+                // parsing the tr tag.
+                let table_element_node_option = table_element_option.get(parser);
 
-    match selected_table {
-        Some(table) => {
-            info!("successfully found table in parsed document.");
-            return Some(table);
+                match table_element_node_option {
+                    Some(table_element_node) => {
+                        println!("{:?}", table_element_node);
+                    }
+                    None => error!("Failed to find tr tags in the table."),
+                }
+            }
         }
-        None => {
-            error!("Could not found table in parsed document.");
-            return None;
-        }
+        None => error!("Failed to find table in the document."),
     }
 }
