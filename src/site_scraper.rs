@@ -47,7 +47,7 @@ pub async fn get_site_html(site: &String) -> Result<String, reqwest::Error> {
 }
 
 pub fn get_table(site_text: &String) {
-    let mut tables: HashMap<String, String> = HashMap::new();
+    let mut tables: HashMap<u64, NoticeElement> = HashMap::new();
     get_table_element(&site_text, &mut tables);
 }
 
@@ -89,7 +89,7 @@ pub fn parse_tr_to_notice(tr_element: &Node, parser: &Parser) -> Option<NoticeEl
             hash_string.hash(&mut default_hasher);
             let hash = default_hasher.finish();
 
-            // instantiate struct NoticeElement.
+            // instantiate and return struct NoticeElement.
             Some(NoticeElement {
                 serial_number,
                 title,
@@ -110,7 +110,7 @@ pub fn parse_tr_to_notice(tr_element: &Node, parser: &Parser) -> Option<NoticeEl
 ///
 /// # Arguments
 /// * `site_text` - Site html.
-fn get_table_element(site_text: &String, _tables_hash_map: &mut HashMap<String, String>) {
+fn get_table_element(site_text: &String, tables_hash_map: &mut HashMap<u64, NoticeElement>) {
     info!("Parsing html document.");
     // let document = scraper::Html::parse_document(site_text).clone();
     // let table_selector = scraper::Selector::parse("div").unwrap();
@@ -129,9 +129,12 @@ fn get_table_element(site_text: &String, _tables_hash_map: &mut HashMap<String, 
                     let tr_element_option = table_element_option.get(parser);
 
                     match tr_element_option {
-                        Some(tr_element) => {
-                            let _parsed_data = parse_tr_to_notice(&tr_element, &parser);
-                        }
+                        Some(tr_element) => match parse_tr_to_notice(&tr_element, &parser) {
+                            Some(parsed_notice) => {
+                                tables_hash_map.insert(parsed_notice.hash, parsed_notice);
+                            }
+                            None => error!("Failed to create NoticeElement."),
+                        },
                         None => error!("Failed to find tr tags in the table."),
                     }
                 }
