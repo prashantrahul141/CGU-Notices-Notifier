@@ -13,6 +13,7 @@ pub struct Config {
     #[allow(dead_code)]
     pub site_url: String,
     pub db_connection_uri: String,
+    pub database_name: String,
 }
 
 pub fn parse_env() -> Config {
