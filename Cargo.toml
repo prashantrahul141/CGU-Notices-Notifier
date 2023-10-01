@@ -7,7 +7,6 @@ authors = ["Prashant Rahul <prahantrahul141@protonmail.com>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-scraper = "0.17.1"
 teloxide = { version = "0.12", features = ["macros"] }
 log = "0.4"
 pretty_env_logger = "0.4"
@@ -17,3 +16,4 @@ serde = { version = "1.0.188", features = ["derive"] }
 dotenv = "0.15.0"
 env_logger = "0.10.0"
 reqwest = { version = "0.11.20", features = ["json"] }
+tl = "0.7.7"
