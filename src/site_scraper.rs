@@ -46,9 +46,10 @@ pub async fn get_site_html(site: &String) -> Result<String, reqwest::Error> {
     }
 }
 
-pub fn get_table(site_text: &String) {
-    let mut tables: HashMap<u64, NoticeElement> = HashMap::new();
-    get_table_element(&site_text, &mut tables);
+pub fn get_table(site_text: &String) -> HashMap<u64, NoticeElement> {
+    let mut tables_hashmap: HashMap<u64, NoticeElement> = HashMap::new();
+    get_table_element(&site_text, &mut tables_hashmap);
+    tables_hashmap
 }
 
 /// parses tr element of each cell and returns a NoticeElement struct.
@@ -57,9 +58,12 @@ pub fn get_table(site_text: &String) {
 /// * `tr_element` : &Node - tr element node.
 /// * `parser` : &Parser - dom parser.
 pub fn parse_tr_to_notice(tr_element: &Node, parser: &Parser) -> Option<NoticeElement> {
+    trace!("parsing a tr tag.");
     let mut default_hasher = DefaultHasher::new();
     match tr_element.children() {
         Some(table_cell_element) => {
+            trace!("extracing info from cell data.");
+
             // all elements in the indiviual tr tag.
             let cell_elements = table_cell_element.all(parser);
 
@@ -82,13 +86,14 @@ pub fn parse_tr_to_notice(tr_element: &Node, parser: &Parser) -> Option<NoticeEl
                 }
                 None => "None".to_string(),
             };
-
+            trace!("hashing.");
             // hashing is done using the notice's title and date
             // concats the title and the date and hash the resultant.
             let hash_string = date.clone() + &title;
             hash_string.hash(&mut default_hasher);
             let hash = default_hasher.finish();
 
+            trace!("instantiating NoticeElement.");
             // instantiate and return struct NoticeElement.
             Some(NoticeElement {
                 serial_number,
@@ -123,6 +128,7 @@ fn get_table_element(site_text: &String, tables_hash_map: &mut HashMap<u64, Noti
     match table_body_option {
         Some(table_body_node) => {
             // looping through each tr tag in the table
+            info!("looping through all tr tags.");
             for (current_tr_index, table_element_option) in table_body_node.enumerate() {
                 // skipping the first tr because it contains table headers.
                 if current_tr_index != 0 {
@@ -131,6 +137,7 @@ fn get_table_element(site_text: &String, tables_hash_map: &mut HashMap<u64, Noti
                     match tr_element_option {
                         Some(tr_element) => match parse_tr_to_notice(&tr_element, &parser) {
                             Some(parsed_notice) => {
+                                trace!("Saving NoticeElement to hashmap.");
                                 tables_hash_map.insert(parsed_notice.hash, parsed_notice);
                             }
                             None => error!("Failed to create NoticeElement."),
