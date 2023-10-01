@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use tl::{Node, Parser};
 
+// Struct to hold each notice.
 #[derive(Hash, Debug)]
 pub struct NoticeElement {
     serial_number: String,
@@ -46,6 +47,13 @@ pub async fn get_site_html(site: &String) -> Result<String, reqwest::Error> {
     }
 }
 
+/// takes in site html in text and return hashmap of NoticeElement.
+///
+/// # Arguments
+/// * `site_text` : &String - site html in text.
+///
+/// # Returns
+/// * `table`  : HashMap<u64, NoticeElement>
 pub fn get_table(site_text: &String) -> HashMap<u64, NoticeElement> {
     let mut tables_hashmap: HashMap<u64, NoticeElement> = HashMap::new();
     get_table_element(&site_text, &mut tables_hashmap);
