@@ -1,5 +1,4 @@
 use std::collections::hash_map::DefaultHasher;
-use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use tl::{Node, Parser};
 
@@ -47,17 +46,17 @@ pub async fn get_site_html(site: &String) -> Result<String, reqwest::Error> {
     }
 }
 
-/// takes in site html in text and return hashmap of NoticeElement.
+/// takes in site html in text and return vec of NoticeElement.
 ///
 /// # Arguments
 /// * `site_text` : &String - site html in text.
 ///
 /// # Returns
-/// * `table`  : HashMap<u64, NoticeElement>
-pub fn get_table(site_text: &String) -> HashMap<u64, NoticeElement> {
-    let mut tables_hashmap: HashMap<u64, NoticeElement> = HashMap::new();
-    get_table_element(&site_text, &mut tables_hashmap);
-    tables_hashmap
+/// * `table`  : vec<u64, NoticeElement>
+pub fn get_table(site_text: &String) -> Vec<NoticeElement> {
+    let mut tables_vec: Vec<NoticeElement> = Vec::new();
+    get_table_element(&site_text, &mut tables_vec);
+    tables_vec
 }
 
 /// parses tr element of each cell and returns a NoticeElement struct.
@@ -123,7 +122,7 @@ pub fn parse_tr_to_notice(tr_element: &Node, parser: &Parser) -> Option<NoticeEl
 ///
 /// # Arguments
 /// * `site_text` - Site html.
-fn get_table_element(site_text: &String, tables_hash_map: &mut HashMap<u64, NoticeElement>) {
+fn get_table_element(site_text: &String, tables_hash_map: &mut Vec<NoticeElement>) {
     info!("Parsing html document.");
     // let document = scraper::Html::parse_document(site_text).clone();
     // let table_selector = scraper::Selector::parse("div").unwrap();
@@ -145,8 +144,8 @@ fn get_table_element(site_text: &String, tables_hash_map: &mut HashMap<u64, Noti
                     match tr_element_option {
                         Some(tr_element) => match parse_tr_to_notice(&tr_element, &parser) {
                             Some(parsed_notice) => {
-                                trace!("Saving NoticeElement to hashmap.");
-                                tables_hash_map.insert(parsed_notice.hash, parsed_notice);
+                                trace!("Saving NoticeElement to vec.");
+                                tables_hash_map.push(parsed_notice);
                             }
                             None => error!("Failed to create NoticeElement."),
                         },
