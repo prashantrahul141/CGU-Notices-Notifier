@@ -2,15 +2,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use tl::{Node, Parser};
 
-// Struct to hold each notice.
-#[derive(Hash, Debug)]
-pub struct NoticeElement {
-    serial_number: String,
-    hash: u64,
-    title: String,
-    date: String,
-    file_url: String,
-}
+use crate::structs::NoticeElement;
 
 /// requests the given url and returns the html.
 ///
