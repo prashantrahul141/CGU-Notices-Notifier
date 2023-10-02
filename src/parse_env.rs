@@ -15,8 +15,6 @@ pub struct Config {
     pub db_connection_uri: String,
     pub database_name: String,
     pub collection_name: String,
-    pub db_unique_field_name: String,
-    pub db_unique_field_value: String,
     pub teloxide_token: String,
 }
 
