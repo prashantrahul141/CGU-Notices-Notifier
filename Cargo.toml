@@ -17,4 +17,4 @@ dotenv = "0.15.0"
 env_logger = "0.10.0"
 reqwest = { version = "0.11.20", features = ["json"] }
 tl = "0.7.7"
-mongodb = { version = "2.7.0", features = ["tokio-sync"] }
+mongodb = { version = "2.7.0" }
