@@ -12,13 +12,13 @@ pub struct NoticeElement {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DbDomData {
-    latest_hash: String,
-    subscribed_users: Vec<String>,
-    notices: Vec<NoticeElement>,
+    pub latest_hash: String,
+    pub subscribed_users: Vec<String>,
+    pub notices: Vec<NoticeElement>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DbCollectionType {
-    data: DbDomData,
-    data_id: String,
+    pub data: DbDomData,
+    pub data_id: String,
 }
