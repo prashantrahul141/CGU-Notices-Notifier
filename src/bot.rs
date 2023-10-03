@@ -29,6 +29,8 @@ pub async fn answer(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> 
 }
 
 pub async fn run(teloxide_token: &String) {
+    info!("Creating bot instance.");
     let bot = teloxide::Bot::new(teloxide_token);
+    info!("Listening for messages.");
     Command::repl(bot, answer).await;
 }
