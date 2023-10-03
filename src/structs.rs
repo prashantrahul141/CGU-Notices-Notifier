@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Hash, Debug, Serialize, Deserialize)]
 pub struct NoticeElement {
     pub serial_number: String,
-    pub hash: u64,
+    pub hash: String,
     pub title: String,
     pub date: String,
     pub file_url: String,
@@ -14,7 +14,7 @@ pub struct NoticeElement {
 pub struct DbDomData {
     latest_hash: String,
     subscribed_users: Vec<String>,
-    notices: NoticeElement,
+    notices: Vec<NoticeElement>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
