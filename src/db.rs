@@ -1,18 +1,18 @@
 use crate::structs;
 use mongodb::{bson::doc, options::ClientOptions, Client};
 
-///
+pub async fn get_client(connection_uri: &String) -> Client {
+    let client_options = ClientOptions::parse(connection_uri);
+    let client = Client::with_options(client_options.await.unwrap());
+    client.unwrap()
+}
+
 pub async fn get_document(
-    connection_uri: &String,
+    client: &Client,
     database_name: &String,
     collection_name: &String,
 ) -> structs::DbCollectionType {
-    info!("Creating db.");
-
-    let client_options = ClientOptions::parse(connection_uri);
-    let client = Client::with_options(client_options.await.unwrap())
-        .expect("Failed to establish connection to the db.");
-
+    info!("Getting document.");
     let db_con = client.database(database_name);
     let data_col = db_con.collection::<structs::DbCollectionType>(collection_name);
 
