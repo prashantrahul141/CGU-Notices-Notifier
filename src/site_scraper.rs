@@ -1,8 +1,7 @@
+use crate::structs::NoticeElement;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use tl::{Node, Parser};
-
-use crate::structs::NoticeElement;
 
 /// requests the given url and returns the html.
 ///
@@ -56,7 +55,7 @@ pub fn get_table(site_text: &String) -> Vec<NoticeElement> {
 /// # Arguments
 /// * `tr_element` : &Node - tr element node.
 /// * `parser` : &Parser - dom parser.
-pub fn parse_tr_to_notice(tr_element: &Node, parser: &Parser) -> Option<NoticeElement> {
+fn parse_tr_to_notice(tr_element: &Node, parser: &Parser) -> Option<NoticeElement> {
     trace!("parsing a tr tag.");
     let mut default_hasher = DefaultHasher::new();
     match tr_element.children() {
@@ -90,7 +89,7 @@ pub fn parse_tr_to_notice(tr_element: &Node, parser: &Parser) -> Option<NoticeEl
             // concats the title and the date and hash the resultant.
             let hash_string = date.clone() + &title;
             hash_string.hash(&mut default_hasher);
-            let hash = default_hasher.finish();
+            let hash = default_hasher.finish().to_string();
 
             trace!("instantiating NoticeElement.");
             // instantiate and return struct NoticeElement.
