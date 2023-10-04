@@ -9,9 +9,9 @@ pub enum Command {
     #[command(description = "Help Command")]
     Help,
     #[command(description = "Subscribe to CGU Notices.")]
-    Subscibe,
+    Subscribe,
     #[command(description = "Unsubscibe to CGU Notices.")]
-    Unsubscibe,
+    Unsubscribe,
 }
 
 pub async fn answer(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
@@ -21,8 +21,11 @@ pub async fn answer(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> 
             bot.send_message(chat_id, Command::descriptions().to_string())
                 .await?
         }
-        Command::Subscibe => bot.send_message(chat_id, format!("Subscibed")).await?,
-        Command::Unsubscibe => bot.send_message(chat_id, format!("Unsubscibed")).await?,
+        Command::Subscribe => {
+            bot.send_message(chat_id, format!("Subscibed {}", chat_id))
+                .await?
+        }
+        Command::Unsubscribe => bot.send_message(chat_id, format!("Unsubscibed")).await?,
     };
 
     Ok(())
