@@ -66,9 +66,6 @@ fn parse_tr_to_notice(tr_element: &Node, parser: &Parser) -> Option<NoticeElemen
             let cell_elements = table_cell_element.all(parser);
 
             // extracing each elements.
-            let serial_number =
-                String::from_utf8(cell_elements[2].inner_text(parser).as_bytes().to_vec())
-                    .unwrap_or("[]".to_string());
             let title = String::from_utf8(cell_elements[5].inner_text(parser).as_bytes().to_vec())
                 .unwrap_or("[Title]".to_string());
             let date = String::from_utf8(cell_elements[8].inner_text(parser).as_bytes().to_vec())
@@ -94,7 +91,6 @@ fn parse_tr_to_notice(tr_element: &Node, parser: &Parser) -> Option<NoticeElemen
             trace!("instantiating NoticeElement.");
             // instantiate and return struct NoticeElement.
             Some(NoticeElement {
-                serial_number,
                 title,
                 date,
                 file_url,
