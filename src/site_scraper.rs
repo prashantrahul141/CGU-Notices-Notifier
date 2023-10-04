@@ -68,8 +68,12 @@ fn parse_tr_to_notice(tr_element: &Node, parser: &Parser) -> Option<NoticeElemen
             // extracing each elements.
             let title = String::from_utf8(cell_elements[5].inner_text(parser).as_bytes().to_vec())
                 .unwrap_or("[Title]".to_string());
+
             let date = String::from_utf8(cell_elements[8].inner_text(parser).as_bytes().to_vec())
                 .unwrap_or("[Date]".to_string());
+
+            let utc_time = chrono::offset::Utc::now();
+
             let file_url = match cell_elements[12].as_tag() {
                 Some(tag) => {
                     let attrs = tag.attributes();
@@ -81,18 +85,19 @@ fn parse_tr_to_notice(tr_element: &Node, parser: &Parser) -> Option<NoticeElemen
                 }
                 None => "None".to_string(),
             };
-            trace!("hashing.");
             // hashing is done using the notice's title and date
             // concats the title and the date and hash the resultant.
+            trace!("hashing.");
             let hash_string = date.clone() + &title;
             hash_string.hash(&mut default_hasher);
             let hash = default_hasher.finish().to_string();
 
-            trace!("instantiating NoticeElement.");
+            trace!("Instantiating NoticeElement.");
             // instantiate and return struct NoticeElement.
             Some(NoticeElement {
                 title,
                 date,
+                utc_time,
                 file_url,
                 hash,
             })
