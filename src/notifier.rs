@@ -9,6 +9,9 @@ use tokio::time::sleep;
 
 use crate::{db, site_scraper, structs};
 
+// bot api url.
+const BOT_URL: &str = "https://api.telegram.org/bot";
+
 /// Takes db collection and entries,
 /// adds the entries to collection.
 async fn update_db_notices(
@@ -40,14 +43,92 @@ async fn update_latest_hash(
         .expect("Failed to update latest_hash entry metadata.");
 }
 
+/// formats message string.
+/// # Arguments.
+/// * `entries` - &Vec<NoticeElements> - entries which needs to be formatterd.
+/// # Returns
+/// * Formatted String.
+fn format_entries_into_message(entries: &Vec<structs::NoticeElement>) -> String {
+    let mut results = Vec::<String>::new();
+    for entry in entries {
+        let formatted_entry_data = format!(
+            " *{}* %0A%0A _{}_ %0A%0ADF : [Link]({})",
+            entry.title, entry.date, entry.file_url
+        );
+        let intermediate = urlencoding::encode(&formatted_entry_data);
+        results.push(intermediate.to_string());
+    }
+
+    // replaces `.` with `\\.` because telegram api says so.
+    let mut result = results.join("%0A%0A");
+    result = result.replace(".", "\\.");
+    result
+}
+
+/// Send notifications to users.
+/// # Arguments
+/// *
+async fn send_notifications(
+    entries: &Vec<structs::NoticeElement>,
+    users: &Vec<String>,
+    bot_url_with_token: &String,
+) {
+    info!("Sending Notifications to {} Subscribers.", users.len());
+
+    // looping through all subscribers.
+    let mut i = 0;
+    for user_chat_id in users {
+        let request_url = format!(
+            "{}{}{}{}{}{}",
+            bot_url_with_token,
+            String::from("/sendmessage?chat_id="),
+            user_chat_id,
+            "&text=",
+            format_entries_into_message(&entries),
+            "&parse_mode=Markdown"
+        );
+
+        // sleeping to avoid rate limiting.
+        if i == 10 {
+            i = 0;
+            sleep(Duration::from_secs(1)).await;
+        }
+        i += 1;
+
+        let response = reqwest::get(&request_url).await;
+        dbg!(request_url);
+
+        match response {
+            Ok(result) => {
+                dbg!(&result);
+                if result.status() == 429 {
+                    warn!("Recieved 429 from telegram servers.");
+                    warn!("Sleeping for 10 seconds.");
+                    sleep(Duration::from_secs(10)).await;
+                };
+            }
+
+            Err(err) => {
+                info!("Error sending messages. {}", err);
+            }
+        }
+    }
+}
+
 /// notfiy loop
 /// # Arguments.
 /// * `db_client`: &mongodb::Client - Database client.
 /// * `database_name` : &String - Database name.
 /// * `site_url` : &String - Site's url to parse.
 ///
-pub async fn notify_loop(db_client: &mongodb::Client, database_name: &String, site_url: &String) {
+pub async fn notify_loop(
+    db_client: &mongodb::Client,
+    database_name: &String,
+    site_url: &String,
+    bot_token: &String,
+) {
     info!("Running notify loop.");
+    let bot_url_with_token = String::from(BOT_URL) + bot_token;
     loop {
         // metadata document.
         let metadata_document = db::get_metadata_document(&db_client, &database_name).await;
@@ -88,9 +169,19 @@ pub async fn notify_loop(db_client: &mongodb::Client, database_name: &String, si
 
             // update latest_hash.
             update_latest_hash(&new_notice_elements[0].hash, &metadata_collection).await;
+
+            // sending notificaitons to subscribers.
+            send_notifications(
+                &new_notice_elements,
+                &metadata_document.subscribed_users,
+                &bot_url_with_token,
+            )
+            .await;
         }
 
         info!("Sleeping notify loop.");
-        sleep(Duration::from_secs(10)).await;
+        sleep(Duration::from_secs(300)).await;
     }
 }
+
+// https://api.telegram.org/bot6385052871:AAH1lyZ4zvWxqHDb0UC3yTvvq32JAQkNQmY/sendmessage?chat_id=1298091653&text=%2AM\\.%20Sc%20\\%28CSE-%203rd%20Sem\\.\\%29)%2A%250A_September%2025%2C%202023_%250APDF%20%3A%20%5BLink%5D\\%28https%3A%2F%2Fcgu-odisha\\.ac\\.in%2Fwp-content%2Fuploads%2F2023%2F09%2F3rd-M\\.Sc-CC\\.pdf\\%29)%0A%0A%2AM\\.%20Tech%20\\%28CSE-1st%20sem\\.\\%29)%2A%250A_September%2025%2C%202023_%250APDF%20%3A%20%5BLink%5D\\%28https%3A%2F%2Fcgu-odisha\\.ac\\.in%2Fwp-content%2Fuploads%2F2023%2F09%2F1st-M\\.Tech_\\.pdf\\%29)&parse_mode=MarkdownV2
