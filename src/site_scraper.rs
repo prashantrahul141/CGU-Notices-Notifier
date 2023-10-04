@@ -44,7 +44,7 @@ pub async fn get_site_html(site: &String) -> Result<String, reqwest::Error> {
 ///
 /// # Returns
 /// * `table`  : vec<u64, NoticeElement>
-pub fn get_table(site_text: &String) -> Vec<NoticeElement> {
+pub fn get_notice_elements(site_text: &String) -> Vec<NoticeElement> {
     let mut tables_vec: Vec<NoticeElement> = Vec::new();
     get_table_element(&site_text, &mut tables_vec);
     tables_vec
