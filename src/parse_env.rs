@@ -14,7 +14,8 @@ pub struct Config {
     pub site_url: String,
     pub db_connection_uri: String,
     pub database_name: String,
-    pub collection_name: String,
+    pub notices_collection_name: String,
+    pub metadata_collection_name: String,
     pub teloxide_token: String,
 }
 
