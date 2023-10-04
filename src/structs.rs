@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 // Struct to hold each notice.
 #[derive(Hash, Debug, Serialize, Deserialize)]
 pub struct NoticeElement {
-    pub serial_number: String,
     pub hash: String,
     pub title: String,
     pub date: String,
