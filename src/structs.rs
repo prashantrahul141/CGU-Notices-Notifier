@@ -10,15 +10,8 @@ pub struct NoticeElement {
     pub file_url: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct DbDomData {
+#[derive(Hash, Debug, Serialize, Deserialize)]
+pub struct DbMetaData {
     pub latest_hash: String,
     pub subscribed_users: Vec<String>,
-    pub notices: Vec<NoticeElement>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct DbCollectionType {
-    pub data: DbDomData,
-    pub data_id: String,
 }
