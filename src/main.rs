@@ -9,7 +9,6 @@ mod utils;
 #[macro_use]
 extern crate log;
 extern crate chrono;
-extern crate urlencoding;
 
 #[tokio::main]
 async fn main() {
