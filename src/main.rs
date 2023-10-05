@@ -4,6 +4,7 @@ mod notifier;
 mod parse_env;
 mod site_scraper;
 mod structs;
+mod utils;
 
 #[macro_use]
 extern crate log;
