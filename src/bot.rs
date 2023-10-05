@@ -89,12 +89,12 @@ pub async fn reply(
 
         Command::Subscribe => {
             db::add_user_to_subscribers(&chat_id.to_string(), &db_metadata_collection).await;
-            bot.send_message(chat_id, UNSUBSCRIBE_MESSAGE).await?;
+            bot.send_message(chat_id, SUBSCRIBE_MESSAGE).await?;
         }
 
         Command::Unsubscribe => {
             db::remove_user_from_subscribers(&chat_id.to_string(), &db_metadata_collection).await;
-            bot.send_message(chat_id, SUBSCRIBE_MESSAGE).await?;
+            bot.send_message(chat_id, UNSUBSCRIBE_MESSAGE).await?;
         }
     };
 
