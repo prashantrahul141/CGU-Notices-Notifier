@@ -1,4 +1,6 @@
-use teloxide::{prelude::*, utils::command::BotCommands};
+use teloxide::{dptree::deps, prelude::*, utils::command::BotCommands};
+
+use crate::{db, structs};
 
 #[derive(BotCommands, Clone, PartialEq, Eq, Debug)]
 #[command(
@@ -14,7 +16,12 @@ pub enum Command {
     Unsubscribe,
 }
 
-pub async fn answer(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
+pub async fn reply(
+    bot: Bot,
+    msg: Message,
+    cmd: Command,
+    db_metadata_collection: mongodb::Collection<structs::DbMetaData>,
+) -> ResponseResult<()> {
     let chat_id = msg.chat.id;
     match cmd {
         Command::Help => {
@@ -22,6 +29,7 @@ pub async fn answer(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> 
                 .await?
         }
         Command::Subscribe => {
+            db::add_user_to_subscribers(&chat_id.to_string(), &db_metadata_collection).await;
             bot.send_message(chat_id, format!("Subscibed {}", chat_id))
                 .await?
         }
@@ -31,9 +39,24 @@ pub async fn answer(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> 
     Ok(())
 }
 
-pub async fn run(teloxide_token: &String) {
+pub async fn run(teloxide_token: &String, connection_uri: &String, database_name: &String) {
     info!("Creating bot instance.");
     let bot = teloxide::Bot::new(teloxide_token);
+    let db_client = db::get_client(&connection_uri).await;
+    let metadata_collection = db::get_metadata_collection(&db_client, &database_name);
+
+    let handler = dptree::entry().branch(
+        Update::filter_message()
+            .filter_command::<Command>()
+            .endpoint(reply),
+    );
+
     info!("Listening for messages.");
-    Command::repl(bot, answer).await;
+    Dispatcher::builder(bot, handler)
+        .dependencies(deps![metadata_collection])
+        .default_handler(|_| async {})
+        .enable_ctrlc_handler()
+        .build()
+        .dispatch()
+        .await;
 }
