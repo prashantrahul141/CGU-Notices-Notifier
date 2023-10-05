@@ -1,6 +1,7 @@
-use crate::structs::{self};
+use crate::structs;
 use mongodb::bson::doc;
 use mongodb::options::ClientOptions;
+use mongodb::Collection;
 
 /// Gets mongodb client.
 /// # Arguements.
@@ -39,6 +40,26 @@ pub async fn get_metadata_document(
         .await
         .expect("Failed to retrieve collection.")
         .expect("Failed to find metadata document in collection.")
+}
+
+/// adds user to notification subscribers' list.
+/// # arguments
+/// * `user_id` : &string - the user id which needs to be added.
+/// * `collection` : &mongodb::collection<dbmetadata> - the metadata collection.
+pub async fn add_user_to_subscribers(
+    user_id: &String,
+    collection: &Collection<structs::DbMetaData>,
+) {
+}
+
+/// removes user to notification subscribers' list.
+/// # arguments
+/// * `user_id` : &string - the user id which needs to be removed.
+/// * `collection` : &mongodb::collection<dbmetadata> - the metadata collection.
+pub async fn remove_user_from_subscribers(
+    user_id: &String,
+    collection: &Collection<structs::DbMetaData>,
+) {
 }
 
 /// Gets the mongodb collection containing notices documents.
