@@ -26,14 +26,31 @@ pub async fn reply(
     match cmd {
         Command::Help => {
             bot.send_message(chat_id, Command::descriptions().to_string())
-                .await?
+                .await?;
         }
         Command::Subscribe => {
             db::add_user_to_subscribers(&chat_id.to_string(), &db_metadata_collection).await;
-            bot.send_message(chat_id, format!("Subscibed {}", chat_id))
-                .await?
+            bot.send_message(
+                chat_id,
+                format!(
+                    "Congratulations!\nYou\'re now subscribed to cgu \
+                    notices notifications, I will send you the notice everytime CGU \
+                    posts something on their website notice board."
+                ),
+            )
+            .await?;
         }
-        Command::Unsubscribe => bot.send_message(chat_id, format!("Unsubscibed")).await?,
+        Command::Unsubscribe => {
+            db::remove_user_from_subscribers(&chat_id.to_string(), &db_metadata_collection).await;
+            bot.send_message(
+                chat_id,
+                format!(
+                    "You\'ve been unsubscribed from CGU notices notificaitons, \
+                    I won\'t send you notices anymore.\nTo subscribe again just send /subscribe"
+                ),
+            )
+            .await?;
+        }
     };
 
     Ok(())
