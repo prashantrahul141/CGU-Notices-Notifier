@@ -4,44 +4,12 @@ use std::{
     time::Duration,
 };
 
-use mongodb::bson::doc;
 use tokio::time::sleep;
 
 use crate::{db, site_scraper, structs};
 
 // bot api url.
 const BOT_URL: &str = "https://api.telegram.org/bot";
-
-/// Takes db collection and entries,
-/// adds the entries to collection.
-async fn update_db_notices(
-    db_col: &mongodb::Collection<structs::NoticeElement>,
-    entries: &Vec<structs::NoticeElement>,
-) {
-    info!(
-        "Updating notice entries, adding {} new entries.",
-        entries.len()
-    );
-    db_col
-        .insert_many(entries, None)
-        .await
-        .expect("Failed to add NoticeElement entries to database.");
-    info!("Updated notices entries : {} Elements", entries.len());
-}
-
-/// Takes latest hash and updates the metadata.
-async fn update_latest_hash(
-    latest_hash: &String,
-    metadata_collection: &mongodb::Collection<structs::DbMetaData>,
-) {
-    info!("Updating latest hash.");
-    let filter = doc! {"data_id" : "metadata"};
-    let update = doc! {"$set": {"latest_hash": &latest_hash}};
-    metadata_collection
-        .update_one(filter, update, None)
-        .await
-        .expect("Failed to update latest_hash entry metadata.");
-}
 
 fn sanitize(entry: &String) -> String {
     let result = entry.replace("&#038;", "%26");
@@ -172,10 +140,10 @@ pub async fn notify_loop(
         // if len of new elements added is > 0.
         if new_notice_elements.len() > 0 as usize {
             // add new entries to collection.
-            update_db_notices(&notices_collection, &new_notice_elements).await;
+            db::update_db_notices(&notices_collection, &new_notice_elements).await;
 
             // update latest_hash.
-            update_latest_hash(&new_notice_elements[0].hash, &metadata_collection).await;
+            db::update_latest_hash(&new_notice_elements[0].hash, &metadata_collection).await;
 
             // sending notificaitons to subscribers.
             send_notifications(

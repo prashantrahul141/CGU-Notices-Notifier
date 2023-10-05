@@ -74,3 +74,34 @@ pub fn get_notices_collection(
     let db_con = db_client.database(&database_name);
     db_con.collection("all-notices-col")
 }
+
+/// takes db collection and entries,
+/// adds the entries to collection.
+pub async fn update_db_notices(
+    db_col: &mongodb::Collection<structs::NoticeElement>,
+    entries: &Vec<structs::NoticeElement>,
+) {
+    info!(
+        "updating notice entries, adding {} new entries.",
+        entries.len()
+    );
+    db_col
+        .insert_many(entries, None)
+        .await
+        .expect("failed to add noticeelement entries to database.");
+    info!("updated notices entries : {} elements", entries.len());
+}
+
+/// Takes latest hash and updates the metadata.
+pub async fn update_latest_hash(
+    latest_hash: &String,
+    metadata_collection: &mongodb::Collection<structs::DbMetaData>,
+) {
+    info!("Updating latest hash.");
+    let filter = doc! {"data_id" : "metadata"};
+    let update = doc! {"$set": {"latest_hash": &latest_hash}};
+    metadata_collection
+        .update_one(filter, update, None)
+        .await
+        .expect("Failed to update latest_hash entry metadata.");
+}
