@@ -11,9 +11,11 @@ use crate::{db, site_scraper, structs, utils};
 // bot api url.
 const BOT_URL: &str = "https://api.telegram.org/bot";
 
-/// Send notifications to users.
+/// Send messages to subscribed users.
 /// # Arguments
-/// *
+/// * `entries` : &Vec<structs::NoticeElement> - notices list.
+/// * `users` : &Vec<structs::NoticeElement> - subscribed users.
+/// * `bot_url_with_token` : &String - Bot connection url.
 async fn send_notifications(
     entries: &Vec<structs::NoticeElement>,
     users: &Vec<String>,

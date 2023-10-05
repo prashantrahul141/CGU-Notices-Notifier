@@ -1,5 +1,6 @@
 use crate::structs;
 
+/// Sanitizes text to make it work as url.
 pub fn sanitize(entry: &String) -> String {
     let result = entry.replace("&#038;", "%26");
     result
