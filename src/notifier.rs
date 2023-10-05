@@ -74,7 +74,7 @@ pub async fn notify_loop(
     site_url: &String,
     bot_token: &String,
 ) {
-    info!("Running notify loop.");
+    info!("Starting notify loop.");
     let bot_url_with_token = String::from(BOT_URL) + bot_token;
     let db_client = db::get_client(&db_connection_uri).await;
 
@@ -130,7 +130,7 @@ pub async fn notify_loop(
             .await;
         }
 
-        info!("Sleeping notify loop.");
+        debug!("Sleeping notify loop.");
         sleep(Duration::from_secs(300)).await;
     }
 }

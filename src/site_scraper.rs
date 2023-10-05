@@ -11,20 +11,20 @@ use tl::{Node, Parser};
 /// # Output
 /// * `Result<String, Err>` - output.
 pub async fn get_site_html(site: &String) -> Result<String, reqwest::Error> {
-    info!("GET request to : {}", &site);
+    debug!("GET request to : {}", &site);
     let response_result = reqwest::get(site).await;
     match response_result {
         Ok(response_body) => {
-            info!("Got response from {} successfully.", site);
-            info!("Parsing response to text.");
+            debug!("Got response from {} successfully.", site);
+            debug!("Parsing response to text.");
             let response_text_result = response_body.text().await;
             match response_text_result {
                 Ok(response_text) => {
-                    info!("successfully parsed response text.");
+                    debug!("successfully parsed response text.");
                     Ok(response_text)
                 }
                 Err(err) => {
-                    error!("Failed to parse response text.");
+                    debug!("Failed to parse response text.");
                     Err(err)
                 }
             }
@@ -115,19 +115,16 @@ fn parse_tr_to_notice(tr_element: &Node, parser: &Parser) -> Option<NoticeElemen
 /// # Arguments
 /// * `site_text` - Site html.
 fn get_table_element(site_text: &String, tables_hash_map: &mut Vec<NoticeElement>) {
-    info!("Parsing html document.");
-    // let document = scraper::Html::parse_document(site_text).clone();
-    // let table_selector = scraper::Selector::parse("div").unwrap();
-
+    debug!("Parsing html document.");
     let site_dom = tl::parse(&site_text, tl::ParserOptions::default()).unwrap();
     let parser = site_dom.parser();
     let table_body_option = site_dom.query_selector("tr");
-    info!("Searching for table in parsed document.");
+    debug!("Searching for table in parsed document.");
 
     match table_body_option {
         Some(table_body_node) => {
             // looping through each tr tag in the table
-            info!("looping through all tr tags.");
+            debug!("looping through all tr tags.");
             for (current_tr_index, table_element_option) in table_body_node.enumerate() {
                 // skipping the first tr because it contains table headers.
                 if current_tr_index != 0 {

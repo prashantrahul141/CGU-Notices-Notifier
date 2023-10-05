@@ -113,7 +113,7 @@ pub async fn update_db_notices(
     db_col: &mongodb::Collection<structs::NoticeElement>,
     entries: &Vec<structs::NoticeElement>,
 ) {
-    info!(
+    debug!(
         "updating notice entries, adding {} new entries.",
         entries.len()
     );
@@ -121,7 +121,7 @@ pub async fn update_db_notices(
         .insert_many(entries, None)
         .await
         .expect("failed to add noticeelement entries to database.");
-    info!("updated notices entries : {} elements", entries.len());
+    debug!("updated notices entries : {} elements", entries.len());
 }
 
 /// Takes latest hash and updates the metadata.
@@ -129,7 +129,7 @@ pub async fn update_latest_hash(
     latest_hash: &String,
     metadata_collection: &mongodb::Collection<structs::DbMetaData>,
 ) {
-    info!("Updating latest hash.");
+    debug!("Updating latest hash.");
     let filter = doc! {"data_id" : "metadata"};
     let update = doc! {"$set": {"latest_hash": &latest_hash}};
     metadata_collection
