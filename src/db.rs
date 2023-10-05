@@ -42,14 +42,37 @@ pub async fn get_metadata_document(
         .expect("Failed to find metadata document in collection.")
 }
 
+/// Gets metadata document using collection and not client.
+/// # Arguments.
+/// * `metadata_collection` - &mongodb::Collection<structs::DbMetaData>
+pub async fn get_metadata_document_from_collection(
+    metadata_collection: &mongodb::Collection<structs::DbMetaData>,
+) -> structs::DbMetaData {
+    metadata_collection
+        .find_one(doc! { "data_id": "metadata" }, None)
+        .await
+        .expect("Failed to retrieve collection.")
+        .expect("Failed to find metadata document in collection.")
+}
+
 /// adds user to notification subscribers' list.
 /// # arguments
 /// * `user_id` : &string - the user id which needs to be added.
-/// * `collection` : &mongodb::collection<dbmetadata> - the metadata collection.
+/// * `metadata_collection` : &mongodb::collection<dbmetadata> - the metadata collection.
 pub async fn add_user_to_subscribers(
     user_id: &String,
-    collection: &Collection<structs::DbMetaData>,
+    metadata_collection: &Collection<structs::DbMetaData>,
 ) {
+    let current_document = get_metadata_document_from_collection(&metadata_collection).await;
+    let mut subscribed_users = current_document.subscribed_users;
+    if !subscribed_users.contains(user_id) {
+        subscribed_users.push(user_id.clone());
+
+        let filter = doc! {"data_id" : "metadata"};
+        let update = doc! {"$set": {"subscribed_users": &subscribed_users}};
+
+        let _ = metadata_collection.update_one(filter, update, None).await;
+    }
 }
 
 /// removes user to notification subscribers' list.
@@ -58,8 +81,17 @@ pub async fn add_user_to_subscribers(
 /// * `collection` : &mongodb::collection<dbmetadata> - the metadata collection.
 pub async fn remove_user_from_subscribers(
     user_id: &String,
-    collection: &Collection<structs::DbMetaData>,
+    metadata_collection: &Collection<structs::DbMetaData>,
 ) {
+    let current_document = get_metadata_document_from_collection(&metadata_collection).await;
+    let mut subscribed_users = current_document.subscribed_users;
+
+    subscribed_users.retain(|x| x.clone() != user_id.clone());
+
+    let filter = doc! {"data_id" : "metadata"};
+    let update = doc! {"$set": {"subscribed_users": &subscribed_users}};
+
+    let _ = metadata_collection.update_one(filter, update, None).await;
 }
 
 /// Gets the mongodb collection containing notices documents.
