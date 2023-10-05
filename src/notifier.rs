@@ -6,36 +6,10 @@ use std::{
 
 use tokio::time::sleep;
 
-use crate::{db, site_scraper, structs};
+use crate::{db, site_scraper, structs, utils};
 
 // bot api url.
 const BOT_URL: &str = "https://api.telegram.org/bot";
-
-fn sanitize(entry: &String) -> String {
-    let result = entry.replace("&#038;", "%26");
-    result
-}
-
-/// formats message string.
-/// # Arguments.
-/// * `entries` - &Vec<NoticeElements> - entries which needs to be formatterd.
-/// # Returns
-/// * Formatted String.
-fn format_entries_into_message(entries: &Vec<structs::NoticeElement>) -> String {
-    let mut results = Vec::<String>::new();
-    for entry in entries {
-        let formatted_entry_data = format!(
-            "{}%0A{}%0ALink : {}",
-            sanitize(&entry.title),
-            sanitize(&entry.date),
-            sanitize(&entry.file_url)
-        );
-        results.push(formatted_entry_data.to_string());
-    }
-
-    // add new line after every entry.
-    results.join("%0A%0A")
-}
 
 /// Send notifications to users.
 /// # Arguments
@@ -56,7 +30,7 @@ async fn send_notifications(
             String::from("/sendmessage?chat_id="),
             user_chat_id,
             "&text=",
-            format_entries_into_message(&entries),
+            utils::format_entries_into_message(&entries),
             "&disable_web_page_preview=true"
         );
 
