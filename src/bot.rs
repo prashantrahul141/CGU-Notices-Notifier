@@ -9,14 +9,14 @@ use teloxide::{
 use crate::{db, structs};
 
 const START_MESSAGE: &str =  "Greetings👋\nWould you like to subscribe to CGU notices notifications?
-            \nI will send you the notice everytime CGU posts any update on their website's notice board.";
+            \nI will send you the notice everytime CGU posts any update on their website's notice board 😸";
 
 const SUBSCRIBE_MESSAGE: &str = "Congratulations🎉\nYou\'re now subscribed to cgu \
                     notices notifications, I will send you the notice everytime CGU \
-                    posts something on their website notice board.";
+                    posts something on their website notice board 😼";
 
 const UNSUBSCRIBE_MESSAGE: &str = "You\'ve been unsubscribed from CGU notices notifications, \
-                    I won\'t send you notices anymore.\nTo subscribe again just send /subscribe.";
+                    I won\'t send you notices anymore 😿\nTo subscribe again just send /subscribe.";
 
 /// Creates a keyboard made by buttons.
 fn make_keyboard() -> InlineKeyboardMarkup {
@@ -50,7 +50,7 @@ async fn callback_handler(
 #[derive(BotCommands, Clone, PartialEq, Eq, Debug)]
 #[command(
     rename_rule = "lowercase",
-    description = "You can use the following commands to interact with me."
+    description = "You can use the following commands to interact with me 😸"
 )]
 pub enum Command {
     #[command(description = "Start Command")]
