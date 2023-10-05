@@ -43,6 +43,11 @@ async fn update_latest_hash(
         .expect("Failed to update latest_hash entry metadata.");
 }
 
+fn sanitize(entry: &String) -> String {
+    let result = entry.replace("&#038;", "%26");
+    result
+}
+
 /// formats message string.
 /// # Arguments.
 /// * `entries` - &Vec<NoticeElements> - entries which needs to be formatterd.
@@ -52,17 +57,16 @@ fn format_entries_into_message(entries: &Vec<structs::NoticeElement>) -> String 
     let mut results = Vec::<String>::new();
     for entry in entries {
         let formatted_entry_data = format!(
-            " *{}* %0A%0A _{}_ %0A%0ADF : [Link]({})",
-            entry.title, entry.date, entry.file_url
+            "{}%0A{}%0ALink : {}",
+            sanitize(&entry.title),
+            sanitize(&entry.date),
+            sanitize(&entry.file_url)
         );
-        let intermediate = urlencoding::encode(&formatted_entry_data);
-        results.push(intermediate.to_string());
+        results.push(formatted_entry_data.to_string());
     }
 
-    // replaces `.` with `\\.` because telegram api says so.
-    let mut result = results.join("%0A%0A");
-    result = result.replace(".", "\\.");
-    result
+    // add new line after every entry.
+    results.join("%0A%0A")
 }
 
 /// Send notifications to users.
@@ -85,7 +89,7 @@ async fn send_notifications(
             user_chat_id,
             "&text=",
             format_entries_into_message(&entries),
-            "&parse_mode=Markdown"
+            "&disable_web_page_preview=true"
         );
 
         // sleeping to avoid rate limiting.
@@ -94,22 +98,21 @@ async fn send_notifications(
             sleep(Duration::from_secs(1)).await;
         }
         i += 1;
-
         let response = reqwest::get(&request_url).await;
-        dbg!(request_url);
 
         match response {
             Ok(result) => {
-                dbg!(&result);
                 if result.status() == 429 {
                     warn!("Recieved 429 from telegram servers.");
                     warn!("Sleeping for 10 seconds.");
                     sleep(Duration::from_secs(10)).await;
                 };
+                // debug telegram's response.
+                debug!("{}", result.text().await.unwrap());
             }
 
             Err(err) => {
-                info!("Error sending messages. {}", err);
+                error!("Error sending messages. {}", err);
             }
         }
     }
@@ -122,13 +125,15 @@ async fn send_notifications(
 /// * `site_url` : &String - Site's url to parse.
 ///
 pub async fn notify_loop(
-    db_client: &mongodb::Client,
+    db_connection_uri: &String,
     database_name: &String,
     site_url: &String,
     bot_token: &String,
 ) {
     info!("Running notify loop.");
     let bot_url_with_token = String::from(BOT_URL) + bot_token;
+    let db_client = db::get_client(&db_connection_uri).await;
+
     loop {
         // metadata document.
         let metadata_document = db::get_metadata_document(&db_client, &database_name).await;
@@ -162,6 +167,8 @@ pub async fn notify_loop(
             }
         }
 
+        // dbg!(&new_notice_elements);
+
         // if len of new elements added is > 0.
         if new_notice_elements.len() > 0 as usize {
             // add new entries to collection.
@@ -183,5 +190,3 @@ pub async fn notify_loop(
         sleep(Duration::from_secs(300)).await;
     }
 }
-
-// https://api.telegram.org/bot6385052871:AAH1lyZ4zvWxqHDb0UC3yTvvq32JAQkNQmY/sendmessage?chat_id=1298091653&text=%2AM\\.%20Sc%20\\%28CSE-%203rd%20Sem\\.\\%29)%2A%250A_September%2025%2C%202023_%250APDF%20%3A%20%5BLink%5D\\%28https%3A%2F%2Fcgu-odisha\\.ac\\.in%2Fwp-content%2Fuploads%2F2023%2F09%2F3rd-M\\.Sc-CC\\.pdf\\%29)%0A%0A%2AM\\.%20Tech%20\\%28CSE-1st%20sem\\.\\%29)%2A%250A_September%2025%2C%202023_%250APDF%20%3A%20%5BLink%5D\\%28https%3A%2F%2Fcgu-odisha\\.ac\\.in%2Fwp-content%2Fuploads%2F2023%2F09%2F1st-M\\.Tech_\\.pdf\\%29)&parse_mode=MarkdownV2
