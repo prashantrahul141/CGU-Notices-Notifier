@@ -1,4 +1,5 @@
 mod bot;
+mod constants;
 mod db;
 mod notifier;
 mod parse_env;
