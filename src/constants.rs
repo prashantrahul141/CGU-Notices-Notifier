@@ -10,9 +10,9 @@ pub const UNSUBSCRIBE_MESSAGE: &str = "You\'ve been unsubscribed from CGU notice
 
 pub const INFO_MESSAGE: &str =
     "Hello! My only purpose is to send you notifications whenever CGU posts any updates on their \
-                  website's notice board.\nSince it doesn\'t have a system where it can notify students on updates,\
+                  website's notice board.\n\nSince it doesn\'t have a system where it can notify students on updates, \
                    it creates quite a lot of confusion among the students.\nI stand to solve that problem by notifying everyone who is \
                    subscribed to me within 10 minutes.\nYou can subscribe too, just by sending a /subscribe to me. \
-                   And you can unsubscibe from me anytime you want!\n\n \
+                   And you can unsubscibe from me anytime you want!\n\n\
                    Here's the source code if you\'re interested : https://github.com/prashantrahul141/CGU-Notices-Notifier\
-                   \nIf you like the project consider giving it a star!";
+                   \nIf you like the project consider giving it a star on github!";
