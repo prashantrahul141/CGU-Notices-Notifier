@@ -1,3 +1,5 @@
+<p align="center"><img style="border-radius:100%;" src="/meta/cgu-notice-notifier.png" width="200px"/></p>
+
 <h2 align="center">CGU Notice Notifier</h2>
 
 <p align="center">Telegram bot which sends notifications to all subscribed users whenever CGU posts any update on their website <a href="https://cgu-odisha.ac.in/notice/">notice board</a>. </p>
