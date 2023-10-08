@@ -53,6 +53,8 @@ pub enum Command {
     Subscribe,
     #[command(description = "Unsubscibe to CGU Notices.")]
     Unsubscribe,
+    #[command(description = "Some info about the bot.")]
+    Info,
 }
 
 /// Reply callback handler.
@@ -85,6 +87,10 @@ pub async fn reply(
         Command::Unsubscribe => {
             db::remove_user_from_subscribers(&chat_id.to_string(), &db_metadata_collection).await;
             bot.send_message(chat_id, UNSUBSCRIBE_MESSAGE).await?;
+        }
+
+        Command::Info => {
+            bot.send_message(chat_id, INFO_MESSAGE).await?;
         }
     };
 
