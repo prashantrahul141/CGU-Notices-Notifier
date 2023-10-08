@@ -1,4 +1,4 @@
-<p align="center"><a href="."><img alt="." style="border-radius:100%;" src="/meta/cgu-notice-notifier.png" width="200px"/></a></p>
+<p align="center"><a href="."><img alt="." style="border-radius:100%;" src="https://raw.githubusercontent.com/prashantrahul141/CGU-Notices-Notifier/main/meta/cgu-notice-notifier.png" width="200px"/></a></p>
 
 <h2 align="center">CGU Notice Notifier</h2>
 
