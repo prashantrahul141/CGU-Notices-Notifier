@@ -2,6 +2,8 @@
 
 <p align="center">Telegram bot which sends notifications to all subscribed users whenever CGU posts any update on their website <a href="https://cgu-odisha.ac.in/notice/">notice board</a>. </p>
 
+<p align="center">Here's the instance I am hosting : <a href="https://t.me/cgu_notices_bot">@CGU_Notices_Bot</a></p>
+
 <br>
 <h3>🛠️ Building from source</h3>
 
