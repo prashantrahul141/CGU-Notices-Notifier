@@ -1,4 +1,4 @@
-<p align="center"><img style="border-radius:100%;" src="/meta/cgu-notice-notifier.png" width="200px"/></p>
+<p align="center"><a href="."><img alt="." style="border-radius:100%;" src="/meta/cgu-notice-notifier.png" width="200px"/></a></p>
 
 <h2 align="center">CGU Notice Notifier</h2>
 
