@@ -13,8 +13,7 @@ COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --recipe-path recipe.json
 
 COPY . .
-RUN cargo build --release
 
 FROM rust:1.72-slim AS template-rust
-COPY --from=builder /app/target/release/cgu-notice-tg-bot /usr/local/bin
+COPY --from=builder /app/target/debug/cgu-notice-tg-bot /usr/local/bin
 ENTRYPOINT ["/usr/local/bin/cgu-notice-tg-bot"]
